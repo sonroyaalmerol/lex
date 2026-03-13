@@ -195,9 +195,15 @@ func (l *Lex[C, T]) Accept(verifFn func(item T) bool) bool {
 // Once it fails the verification, the cursor is rolledback once, leaving the caller at the unit
 // that failed the verifFn
 func (l *Lex[C, T]) AcceptRun(verifFn func(item T) bool) {
-	for verifFn(l.Next()) {
+	for {
+		if l.pos >= len(l.input) {
+			return
+		}
+		if !verifFn(l.Next()) {
+			l.Prev()
+			return
+		}
 	}
-	l.Prev()
 }
 
 // Cur returns the same indexed item in the slice
